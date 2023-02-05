@@ -1,4 +1,4 @@
-package org.goxiaogle.chainbuilder.utils;
+package org.goxiaogle.chainbuilder.factory;
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder;
 
