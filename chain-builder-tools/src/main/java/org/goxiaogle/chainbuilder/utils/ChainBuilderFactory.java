@@ -4,7 +4,6 @@ import org.goxiaogle.chainbuilder.CheckChainBuilder;
 import org.goxiaogle.chainbuilder.annotations.CheckBetween;
 
 import java.util.Comparator;
-import java.util.List;
 
 
 public class ChainBuilderFactory {
