@@ -1,7 +1,6 @@
 package org.goxiaogle.chainbuilder.utils;
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder;
-import org.goxiaogle.chainbuilder.annotations.CheckBetween;
 
 public class ChainBuilderFactory {
 

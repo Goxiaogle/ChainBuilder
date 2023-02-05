@@ -1,11 +1,8 @@
 package org.goxiaogle.chainbuilder;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.concurrent.Callable;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
