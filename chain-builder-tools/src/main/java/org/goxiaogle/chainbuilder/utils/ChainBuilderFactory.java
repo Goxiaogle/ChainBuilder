@@ -16,7 +16,7 @@ public class ChainBuilderFactory {
     }
 
     public void create(CheckChainBuilder<?> builder) {
-        System.out.println("a");
+
     }
 
 }
