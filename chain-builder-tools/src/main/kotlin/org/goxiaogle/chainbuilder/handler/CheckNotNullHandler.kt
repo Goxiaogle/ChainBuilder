@@ -13,7 +13,7 @@ class CheckNotNullHandler : CheckHandler {
      * 不需要使用默认的 NULL 判断
      */
     override fun handle(builder: CheckChainBuilder<*>, obj: Any, field: Field) {
-        builder.isNotNull(field[obj])
+        builder.setFailResultCheckByFactory("[${field.name}] 字段值不应为 null").isNotNull(field[obj])
     }
 
 }

@@ -32,4 +32,6 @@ public @interface CheckNumberBetween {
 
     @Pattern("[+-]?(0|([1-9]\\d*))(\\.\\d+)?$") String rightString() default NONE;
 
+    Reason reason() default @Reason;
+
 }

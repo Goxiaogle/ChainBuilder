@@ -2,28 +2,16 @@ package org.goxiaogle.chainbuilder.factory
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
 import org.goxiaogle.chainbuilder.handler.*
+import org.goxiaogle.chainbuilder.setting.CheckChainBuilderSetting
 
 class CheckChainBuilderFactory(private vararg val targets: Any) {
 
     private val ignoreHandlers: MutableList<Class<out CheckHandler>> = mutableListOf()
 
-    companion object Handlers {
-        /**
-         * handlers 可二次修改的，所以你可以自定义里面的内容
-         */
-        val handlers = mutableListOf(
-            CheckNotNullHandler(),
-            CheckRegexHandler(),
-            CheckSizeHandler(),
-            CheckNotBlankHandler(),
-            CheckNumberBetweenHandler()
-        )
-    }
-
     /**
      * 以 obj 的字段上的 @CheckXXX 注解为基础，构建 CheckChainBuilder
      *
-     * 【注意】一个字段被多个 @CheckXXX 注解标记时，仅会生效在 [Handlers.handlers] 中顺序靠前的一个
+     * 【注意】一个字段被多个 @CheckXXX 注解标记时，仅会生效在 [CheckChainBuilderSetting.checkHandlers] 中顺序靠前的一个
      */
     fun create(builder: CheckChainBuilder<*>) {
         for (obj in targets) {
@@ -44,7 +32,7 @@ class CheckChainBuilderFactory(private vararg val targets: Any) {
      * 过滤除需要忽略的处理器类型，返回可用的处理器
      */
     private fun filterIgnore(): List<CheckHandler> {
-        var temp: List<CheckHandler> = handlers
+        var temp: List<CheckHandler> = CheckChainBuilderSetting.checkHandlers
         ignoreHandlers.forEach { clazz ->
             temp = temp.filter { clazz.isAssignableFrom(it.javaClass) }
         }

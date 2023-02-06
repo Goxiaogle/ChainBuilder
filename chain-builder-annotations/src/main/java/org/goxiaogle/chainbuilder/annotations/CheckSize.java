@@ -18,4 +18,6 @@ import java.lang.annotation.Target;
 public @interface CheckSize {
     int left() default 0;
     int right() default Integer.MAX_VALUE;
+
+    Reason reason() default @Reason;
 }

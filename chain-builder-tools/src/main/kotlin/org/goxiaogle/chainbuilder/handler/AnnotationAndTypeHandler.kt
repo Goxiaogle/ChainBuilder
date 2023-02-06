@@ -1,6 +1,7 @@
 package org.goxiaogle.chainbuilder.handler
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
+import org.goxiaogle.chainbuilder.pojo.FieldInfo
 import java.lang.reflect.Field
 
 /**
@@ -25,13 +26,5 @@ abstract class AnnotationAndTypeHandler<A: Annotation>(
      * 只有在指定注解在特定类型的字段上使用时
      */
     override fun isSupported(field: Field) = field.isAnnotationPresent(annotationClass) && types.any { it.isAssignableFrom(field.type) }
-
-    data class FieldInfo<A>(
-        val obj: Any,
-        val field: Field,
-        val targetAnnotation: A,
-        val fieldValue: Any,
-        val fieldName: Any?,
-    )
 
 }

@@ -120,7 +120,7 @@ abstract public class DefaultChainBuilder<Result, Child extends DefaultChainBuil
      * @param <Result>
      */
     @FunctionalInterface
-    interface ResultFactory<Result> {
+    public interface ResultFactory<Result> {
         Result create(String reason);
     }
 }

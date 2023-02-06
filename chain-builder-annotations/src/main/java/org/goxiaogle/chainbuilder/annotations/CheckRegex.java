@@ -21,4 +21,6 @@ public @interface CheckRegex {
      * 正则表达式
      */
     @RegExp String value();
+
+    Reason reason() default @Reason;
 }
