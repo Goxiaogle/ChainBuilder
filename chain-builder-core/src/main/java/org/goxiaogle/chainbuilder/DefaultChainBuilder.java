@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 abstract public class DefaultChainBuilder<Result, Child extends DefaultChainBuilder<Result, Child>> implements ChainBuilder<Result, Child> {
 
     protected boolean proceed = true;
-    protected boolean useCatch = false;
+    protected boolean useCatch = true;
     protected boolean skipNext = false;
     /**
      * 失败结果构造工厂，(String) -> Result
@@ -84,8 +84,9 @@ abstract public class DefaultChainBuilder<Result, Child extends DefaultChainBuil
      * @param useCatch 是否要捕获异常
      * @see DefaultChainBuilder#isUseCatch()
      */
-    public void setUseCatch(boolean useCatch) {
+    public Child setUseCatch(boolean useCatch) {
         this.useCatch = useCatch;
+        return (Child) this;
     }
 
     @Override
