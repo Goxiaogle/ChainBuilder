@@ -1,8 +1,6 @@
 package org.goxiaogle.chainbuilder.handler
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
-import org.goxiaogle.chainbuilder.annotations.Reason
-import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.addReason
 import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.throwByUseCatch
 import java.lang.reflect.Field
 

@@ -4,7 +4,6 @@ import org.goxiaogle.chainbuilder.CheckChainBuilder
 import org.goxiaogle.chainbuilder.annotations.CheckNotBlank
 import org.goxiaogle.chainbuilder.pojo.FieldInfo
 import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.addReason
-import java.lang.reflect.Field
 
 class CheckNotBlankHandler : AnnotationAndTypeHandler<CheckNotBlank>(CheckNotBlank::class.java, String::class.java) {
 

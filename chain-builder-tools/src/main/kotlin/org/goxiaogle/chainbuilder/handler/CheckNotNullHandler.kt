@@ -2,8 +2,6 @@ package org.goxiaogle.chainbuilder.handler
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
 import org.goxiaogle.chainbuilder.annotations.CheckNotNull
-import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils
-import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.throwByUseCatch
 import java.lang.reflect.Field
 
 class CheckNotNullHandler : CheckHandler {

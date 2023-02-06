@@ -1,7 +1,8 @@
 package org.goxiaogle.chainbuilder.factory
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
-import org.goxiaogle.chainbuilder.handler.*
+import org.goxiaogle.chainbuilder.handler.CheckHandler
+import org.goxiaogle.chainbuilder.handler.CheckNotNullHandler
 import org.goxiaogle.chainbuilder.setting.CheckChainBuilderSetting
 
 class CheckChainBuilderFactory(private vararg val targets: Any) {

@@ -3,10 +3,7 @@ package org.goxiaogle.chainbuilder.handler
 import org.goxiaogle.chainbuilder.CheckChainBuilder
 import org.goxiaogle.chainbuilder.annotations.CheckSize
 import org.goxiaogle.chainbuilder.pojo.FieldInfo
-import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils
 import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.addReason
-import org.goxiaogle.chainbuilder.utils.CheckChainBuilderUtils.throwByUseCatch
-import java.lang.reflect.Field
 
 class CheckSizeHandler : AnnotationAndTypeHandler<CheckSize>(CheckSize::class.java, String::class.java, Collection::class.java) {
 

@@ -2,10 +2,8 @@ package org.goxiaogle.chainbuilder.utils
 
 import org.goxiaogle.chainbuilder.CheckChainBuilder
 import org.goxiaogle.chainbuilder.annotations.Reason
-import org.goxiaogle.chainbuilder.handler.AnnotationAndTypeHandler
 import org.goxiaogle.chainbuilder.pojo.FieldInfo
 import org.goxiaogle.chainbuilder.setting.CheckChainBuilderSetting
-import java.lang.reflect.Field
 import java.util.concurrent.Callable
 
 object CheckChainBuilderUtils {

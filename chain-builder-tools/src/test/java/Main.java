@@ -1,5 +1,4 @@
 import org.goxiaogle.chainbuilder.CheckChainBuilder;
-import org.goxiaogle.chainbuilder.annotations.CheckNotBlank;
 import org.goxiaogle.chainbuilder.annotations.CheckNumberBetween;
 import org.goxiaogle.chainbuilder.annotations.CheckRegex;
 import org.goxiaogle.chainbuilder.annotations.Reason;
