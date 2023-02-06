@@ -32,6 +32,10 @@ public interface ChainBuilder<Result, Child extends ChainBuilder<Result, Child>>
      */
     Child setProceed(BooleanSupplier proceed);
 
+    /**
+     * 执行一个操作，操作返回值会通过 {@link ChainBuilder#setProceed(BooleanSupplier)} 设定
+     * @param supplier 指定操作
+     */
     default Child then(BooleanSupplier supplier) {
         // 可继续执行才执行 supplier 的内容
         if (isProceed() && !isSkipNext()) {
@@ -41,12 +45,17 @@ public interface ChainBuilder<Result, Child extends ChainBuilder<Result, Child>>
         return (Child) this;
     }
 
+    /**
+     * 在执行一个操作的之前设置失败会返回的结果
+     * @param failResult 失败返回的结果
+     * @param supplier 指定操作
+     */
     default Child then(Result failResult, BooleanSupplier supplier) {
         return setFailResultCheck(failResult).then(supplier);
     }
 
     /**
-     * 遇到异常时，捕获并打印（不会终止程序），并且不执行后续链操作
+     * 遇到异常时，捕获并打印（不会终止程序），并且不执行后续链操作，返回失败的结果
      *
      * @param callable 可能出现异常的执行语句
      * @return 子构造器本身
@@ -80,19 +89,23 @@ public interface ChainBuilder<Result, Child extends ChainBuilder<Result, Child>>
     Result getFailResult();
 
     /**
-     * 设置当前失败会返回的结果
+     * 设置失败会返回的结果
      * @param failResult 失败会返回的结果
      */
     Child setFailResult(Result failResult);
 
     /**
-     * 受 SkipNext 影响且会传递 SkipNext 的设置失败结果方法
+     * 设置失败的结果，受 {@link ChainBuilder#isSkipNext()} 影响且会传递 skipNext
      * @param failResult 失败的结果
      */
     default Child setFailResultCheck(Result failResult) {
         return isSkipNext() ? skipNext() : setFailResult(failResult);
     }
 
+    /**
+     * 下次操作是否会被跳过
+     * @return 是否跳过
+     */
     boolean isSkipNext();
 
     /**
@@ -113,15 +126,25 @@ public interface ChainBuilder<Result, Child extends ChainBuilder<Result, Child>>
     Child setSkipNext(boolean skipNext);
 
     /**
-     * 传入一个消费者，并会为其传入本链建造器对象的引用
+     * 协助链构造器构造，其中可以传入自己的工具类等，在 chain-builder-tools 中有实现可供参考
      * @param consumer 消费者
      */
     Child buildBy(Consumer<Child> consumer);
 
+    /**
+     * 结束构造
+     * @param successResult 成功结果
+     * @return 如果最近一次操作返回为 true，或者手动设定为 true，则使用成功的结果，否则使用最近一次设定的失败结果
+     */
     default Result end(Result successResult) {
         return end(() -> successResult);
     }
 
+    /**
+     * 结束构造
+     * @param successResult 成功结果
+     * @return 如果最近一次操作返回为 true，或者手动设定为 true，则使用成功的结果，否则使用最近一次设定的失败结果
+     */
     default Result end(Supplier<Result> successResult) {
         return isProceed() ? successResult.get() : getFailResult();
     }

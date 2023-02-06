@@ -1,5 +1,7 @@
 package org.goxiaogle.chainbuilder;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -10,6 +12,10 @@ abstract public class DefaultChainBuilder<Result, Child extends DefaultChainBuil
     protected boolean proceed = true;
     protected boolean useCatch = false;
     protected boolean skipNext = false;
+    /**
+     * 失败结果构造工厂，(String) -> Result
+     */
+    protected ResultFactory<Result> resultFactory;
     protected Result failResult;
 
     public DefaultChainBuilder(Result failResult) {
@@ -97,5 +103,24 @@ abstract public class DefaultChainBuilder<Result, Child extends DefaultChainBuil
     @Override
     public boolean isSkipNext() {
         return skipNext;
+    }
+
+    @Nullable
+    public ResultFactory<Result> getResultFactory() {
+        return resultFactory;
+    }
+
+    public Child setResultFactory(ResultFactory<Result> resultFactory) {
+        this.resultFactory = resultFactory;
+        return (Child) this;
+    }
+
+    /**
+     * 结果构造工厂
+     * @param <Result>
+     */
+    @FunctionalInterface
+    interface ResultFactory<Result> {
+        Result create(String reason);
     }
 }

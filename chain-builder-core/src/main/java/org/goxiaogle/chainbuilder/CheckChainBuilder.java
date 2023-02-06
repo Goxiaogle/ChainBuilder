@@ -14,7 +14,7 @@ import java.util.Objects;
 final public class CheckChainBuilder<Result> extends DefaultChainBuilder<Result, CheckChainBuilder<Result>> {
 
     /**
-     * 遇到 NULL 时是否跳过此次执行
+     * 遇到 null 时是否跳过此次执行。若不跳过，将会不执行后续操作
      */
     private boolean nullSkip = false;
 
@@ -31,6 +31,28 @@ final public class CheckChainBuilder<Result> extends DefaultChainBuilder<Result,
         super(failResult);
         this.nullSkip = nullSkip;
         this.useCatch = useCatch;
+    }
+
+    /**
+     * 使用失败结果构造工厂设定失败结果
+     * @param reason 原因
+     */
+    public CheckChainBuilder<Result> setFailResultByFactory(String reason) {
+        if (resultFactory != null) {
+            return setFailResult(resultFactory.create(reason));
+        }
+        return this;
+    }
+
+    /**
+     * 使用失败结果构造工厂设定失败的结果，使用 {@link ChainBuilder#setFailResultCheck(Object)}，受 skipNext 影响
+     * @param reason 原因
+     */
+    public CheckChainBuilder<Result> setFailResultCheckByFactory(String reason) {
+        if (resultFactory != null) {
+            return setFailResultCheck(resultFactory.create(reason));
+        }
+        return this;
     }
 
     /**
@@ -70,14 +92,35 @@ final public class CheckChainBuilder<Result> extends DefaultChainBuilder<Result,
         });
     }
 
+    /**
+     * 校验指定对象是否介于左右边界之间
+     * <p>
+     * * 此处不会检查左边界是否大于右边界，所以不会导致左边界大于右边界时使得最终结果为失败
+     *
+     * @param target 要检验的对象
+     * @param left   左边界
+     * @param right  有边界
+     * @param <T>    实现了 Comparable 的类型，如 String、Number
+     */
     public <T extends Comparable<K>, K> CheckChainBuilder<Result> between(T target, K left, K right) {
         return ifNullThenSkip(target).autoThen(() -> target.compareTo(left) >= 0 && target.compareTo(right) <= 0);
     }
 
+    /**
+     * 校验指定对象是否介于左右边界之间，使用指定的比较器
+     * <p>
+     * * 此处不会检查左边界是否大于右边界，所以不会导致左边界大于右边界时使得最终结果为失败
+     *
+     * @param target 要检验的对象
+     * @param left   左边界
+     * @param right  有边界
+     * @param comparator 指定的比较器
+     * @param <T>    实现了 Comparable 的类型，如 String、Number
+     */
     public <T> CheckChainBuilder<Result> between(T target, T left, T right, Comparator<T> comparator) {
         return ifNullThenSkip(target).autoThen(() ->
                 Objects.compare(target, left, comparator) >= 0 &&
-                Objects.compare(target, right, comparator) <= 0
+                        Objects.compare(target, right, comparator) <= 0
         );
     }
 
