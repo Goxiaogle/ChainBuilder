@@ -4,7 +4,7 @@
 
 ## ChainBuilder（链式判断构造）
 
-一个优雅且能快速构造链式判断语句的工具
+一个优雅且能快速构造链式判断语句的类似 Optional 工具
 
 ### 使用示例
 
@@ -174,3 +174,135 @@
    ```
 
    `setResultFactory(String -> T)` 设置了构造结果的工厂函数，而 `setFailResultCheckByFactory(String)` 与 `setFailResultByFactory(String)` 会通过调用该函数，以函数的返回值来设置结果，设置结果的方式分别对应 `setFailResultCheck` 与 `setFailResult`。
+   
+## CheckChainBuilderFactory（通过给实体类附加注解快速校验数据）
+
+### 使用示例
+
+首先创建一个 Apple 类，用于代表平常的实体类：
+
+```java
+class Apple {
+    @CheckRegex("Apple \\d+ Pro")
+    String name;
+    @CheckNumberBetween(left = 0, right = 100)
+    Long price;
+    // 自定义原因，并且可以使用替代词：{fileName} 指代字段的名字
+    @CheckSize(right = 5, reason = @Reason("{fieldName} should not exceed 5 words!"))
+    String description;
+
+    public Apple(String name, Long price, String description) {
+        this.name = name;
+        this.price = price;
+        this.description = description;
+    }
+}
+```
+
+测试示例：
+
+```java
+Apple apple = new Apple("Apple x Pro", 30L, "test");
+// Apple apple = new Apple("Apple 14 Pro", 200L, "test");
+// Apple apple = new Apple("Apple 14 Pro", 30L, "test123");
+Result<Object> result = new CheckChainBuilder<>(new Result<>(500), true)  // 开启 nullSkip 功能
+        .setResultFactory(Result::new)
+        .buildBy(new CheckChainBuilderFactory(apple)::create)
+        .end(new Result<>(200));
+// Result{code=500, data=null, msg='[name] 字段的值 >Apple x Pro< 不匹配正则: Apple \d+ Pro'}
+// Result{code=500, data=null, msg='[price] 的值应当介于 0 与 100 之间，实际为 >200<'}
+// Result{code=500, data=null, msg='description should not exceed 5 words!'}
+System.out.println(result);
+```
+
+### 自定义处理方式（自定义注解+自定义校验）
+
+1. 新建一个注解
+
+   ```java
+   @Retention(RetentionPolicy.RUNTIME)
+   @Target({ElementType.FIELD})
+   @interface CheckBoolean {
+       boolean value();
+       // 如果要自定义原因，推荐放在注解里
+       Reason reason() default @Reason;
+   }
+   ```
+
+   @Reason 推荐放在你的自定义注解里，这样如果有多注解需求可以针对不同注解有单独的原因说明。也可以不放，直接标记在字段上也行，这里不会影响什么，如何处理还是由下面一步的处理器决定的。
+
+2. 新建一个处理器类
+
+   ```java
+   class CheckBooleanHandler extends AnnotationAndTypeHandler<CheckBoolean> {
+   
+       public CheckBooleanHandler() {
+           // 第一个参数是自定义注解的 class，第二个参数是注解应当在哪种类型的字段上，可以是多个类型
+           super(CheckBoolean.class, Boolean.class);
+       }
+   
+       @Override
+       public void handle(@NotNull CheckChainBuilder<?> builder, @NotNull FieldInfo<CheckBoolean> fieldInfo) {
+           // targetAnnotation 就是上面 super() 中的第一个参数的实例
+           CheckBoolean checkBoolean = fieldInfo.getTargetAnnotation();
+           CheckChainBuilderUtils.addReason(
+                   builder,
+                   // 这里要传入一个 @Reason，由于我们在自定义注解里放入了，所以直接在注解上获取就行，如果你是放在字段上，则可以使用 fieldInfo.getField().getAnnotation(Reason.class)
+                   checkBoolean.reason(),
+                   // 如果未设置 @Reason 的值，会使用的默认内容
+                   "[{fieldName}] 要求为 " + checkBoolean.value() + "，实际为 >{fieldValue}<",
+                   fieldInfo
+           ).setProceed(checkBoolean.value() == (boolean) fieldInfo.getFieldValue());
+       }
+   }
+   ```
+
+   你可以根据自己需求，选择实现接口 `CheckHandler`（最基础的接口）、`CheckWhenNotNullHandler`（做了字段值为 null 的处理），或者是继承 `AnnotationAndTypeHandler<A: Annotation>`（实现了上面的接口，主要面对处理注解）
+
+3. 新建一个测试用的实体类 Test
+
+   ```java
+   class Test {
+       @CheckBoolean(false)
+       Boolean isDelete;
+   
+       public Test(Boolean isDelete) {
+           this.isDelete = isDelete;
+       }
+   }
+   ```
+
+4. 运行测试
+
+   ```java
+   // put in global handlers
+   CheckChainBuilderSetting.getCheckHandlers().add(0, new CheckBooleanHandler());
+   
+   Test test = new Test(true);
+   Result<Object> result = new CheckChainBuilder<>(new Result<>(500), true)  // 开启 nullSkip 功能
+           .setResultFactory(Result::new)
+           .buildBy(new CheckChainBuilderFactory(test)::create)
+           .end(new Result<>(200));
+   // Result{code=500, data=null, msg='[isDelete] 要求为 false，实际为 >true<'}
+   System.out.println(result);
+   ```
+
+   第一行代码是将我们自定义的处理器放入全局处理器中，为了避免可能产生的冲突，建议把自定义处理器放在最前面，防止被其它默认的处理器所处理。
+
+   同样，我们可以尝试使用自定义原因，将 Test 的 isDelete 字段的注解更改为：`@CheckBoolean(value = false, reason = @Reason("[{fieldName}] 数据已被删除"))`，运行结果是：`Result{code=500, data=null, msg='[isDelete] 数据已被删除'}`。
+
+### 自定义替换词
+
+   既然可以自定义校验处理方式，chaiin-builder 当然也支持自定义替换词。当然，下面的方式是针对于在自定义处理器中使用 `CheckChainBuilderUtils.addReason` 来设置原因的。你如果不使用 `addReason`，而使用 `setFailResultCheckByFactory` 来设定原因，你可以用你自己的方式去实现替换词。
+
+1. 将自定义替换词加入全局设置中：
+
+   ```java
+   CheckChainBuilderSetting.getReasonKeywordReplaceMap().put("{time}", (info) -> new Date().toString());
+   ```
+
+   Map 中，第一个参数是要替换的词语，第二个参数是 (FieldInfo) -> String 类型的函数，返回的值将会替换对应的替换词
+
+2. 沿用上面的例子，将 Test 的注解改为 `@CheckBoolean(value = false, reason = @Reason("现在时间是 {time}"))`
+
+3. 运行测试，返回的结果是：`Result{code=500, data=null, msg='现在时间是 Tue Feb 07 16:53:12 CST 2023'}`
